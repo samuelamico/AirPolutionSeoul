@@ -1,0 +1,5 @@
+2020.07.01 18:11:44 INFO  started: Metals version 0.9.0 in workspace 'C:\Users\samfs\Desktop\Projetos-Samuel\AirPolutionSeoul'
+2020.07.01 18:11:44 INFO  time: initialize in 0.49s
+2020.07.01 18:11:45 WARN  no build tool detected in workspace 'C:\Users\samfs\Desktop\Projetos-Samuel\AirPolutionSeoul'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+jul 01, 2020 6:11:47 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFORMAÇÕES: Unsupported notification method: $/setTraceNotification

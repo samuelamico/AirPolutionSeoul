@@ -1,0 +1,5 @@
+package PolutionMeasurements
+
+trait MeasurementesInterface {
+
+}
