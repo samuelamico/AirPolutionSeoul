@@ -1,9 +1,24 @@
 package PolutionMeasurements
 
 import org.apache.spark.sql.types._
+import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
 
 object StaticInformation extends MeasurementesInterface {
+
+  // Pure Functions
+  def convertTimezone(timezone: String): String = {
+    val timezoneList: List[String] = timezone.split(" ").toList
+    val date = timezoneList(0)
+      .split("-")
+      .fold("")(_+"/"+_)
+      .substring(1)
+    val time = timezoneList(1) + ":00"
+
+    date + " " + time
+
+  }
+
 
   // This Object refers to the StationReading and wrangling
   // Spark Session
@@ -14,13 +29,13 @@ object StaticInformation extends MeasurementesInterface {
     .getOrCreate()
 
   val path = (file:String) => getClass.getResource(file).getPath
-
+  val udfTime = udf(convertTimezone _)
   /**
    *
    * @param stationfile The name of the file that is in the resource
    * @return a Dataframe correspond to the station file read
    */
-  def stationFile(stationfile: String): Dataset[Row] = {
+  def readStation(stationfile: String): Dataset[Row] = {
 
     //Struct Schema:
     val schema = StructType(List(
@@ -44,7 +59,7 @@ object StaticInformation extends MeasurementesInterface {
      * @param itemfile Path for Item of Measurements
      * @return the Itens Datframe
      */
-    def itemFile(itemfile: String): Dataset[Row] = {
+    def readItem(itemfile: String): Dataset[Row] = {
 
       // schema
       val schema = StructType(List(
@@ -70,7 +85,7 @@ object StaticInformation extends MeasurementesInterface {
    * @param measuredfile, Path to the Measurement data
    * @return the measure DataFrame
    */
-  def readMeasurement(measuredfile: String) = {
+  def readMeasurement(measuredfile: String): Dataset[Row] = {
     // schema
     val schema = StructType(List(
       StructField("timezone",StringType,nullable = false),
@@ -88,11 +103,33 @@ object StaticInformation extends MeasurementesInterface {
 
     val measureDF = spark.read.schema(schema)
       .format("csv")
+      .option("header",true)
       .load(path(measuredfile))
+      .withColumn("timezone",udfTime(col("timezone")))
 
     measureDF
   }
 
 
+  /// Now the CoreFunctions:
+  def joinedDF(stationDF: Dataset[Row],itemDF: Dataset[Row],measureDF: Dataset[Row]): Dataset[Row] ={
+
+    val interStation = stationDF.select(col("station_code"),col("station_name"))
+    measureDF.join(interStation,Seq("station_code"),"left")
+
+
+  }
+
+  def descentrilizer() ={
+    
+    // Reading Files:
+    val stationDF = readStation("/AirPolution/Data_Measurement_station_info.csv")
+    val itemDF = readItem("/AirPolution/Data_Measurement_item_info.csv")
+    val measureDF = readMeasurement("/AirPolution/Measurement_summary.csv")
+    
+    // Join Files
+    joinedDF(stationDF,itemDF,measureDF)
+
+  }
 
 }
