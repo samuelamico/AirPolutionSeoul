@@ -1,8 +1,6 @@
 package PolutionMeasurements
 
 import org.apache.spark.sql.types._
-
-import scala.io._
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
 
 object StaticInformation extends MeasurementesInterface {
@@ -15,7 +13,7 @@ object StaticInformation extends MeasurementesInterface {
     .config("spark.ui.port", "8081")
     .getOrCreate()
 
-  val path = (stationFile:String) => Source.getClass.getResource(stationFile).getPath
+  val path = (file:String) => getClass.getResource(file).getPath
 
   /**
    *
@@ -26,20 +24,21 @@ object StaticInformation extends MeasurementesInterface {
 
     //Struct Schema:
     val schema = StructType(List(
-      StructField("station_code",IntegerType,nullable = false),
-      StructField("station_name",StringType,nullable = true),
-      StructField("address",StringType,nullable = true),
-      StructField("latitude",DoubleType,nullable = true),
-      StructField("longitude",DoubleType,nullable = true)
+      StructField("station_code", IntegerType, nullable = true),
+      StructField("station_name", StringType, nullable = true),
+      StructField("address", StringType, nullable = true),
+      StructField("latitude", DoubleType, nullable = true),
+      StructField("longitude", DoubleType, nullable = true)
     ))
 
     val stationDF = spark.read.schema(schema)
       .format("csv")
+      .option("header","true")
       .load(path(stationfile))
-      .na.drop(Seq("latitude","longitude","station_code"))
+      .na.drop(Seq("latitude", "longitude", "station_code"))
 
     stationDF
-
+  }
     /**
      *
      * @param itemfile Path for Item of Measurements
@@ -50,7 +49,7 @@ object StaticInformation extends MeasurementesInterface {
       // schema
       val schema = StructType(List(
         StructField("item_code",IntegerType,nullable = false),
-        StructField("item_name",StructField,nullable = true),
+        StructField("item_name",StringType,nullable = true),
         StructField("unit",StringType,nullable = true),
         StructField("good",DoubleType,nullable = false),
         StructField("normal",DoubleType,nullable = false),
@@ -66,9 +65,33 @@ object StaticInformation extends MeasurementesInterface {
 
     }
 
+  /**
+   *
+   * @param measuredfile, Path to the Measurement data
+   * @return the measure DataFrame
+   */
+  def readMeasurement(measuredfile: String) = {
+    // schema
+    val schema = StructType(List(
+      StructField("timezone",StringType,nullable = false),
+      StructField("station_code",IntegerType,nullable = true),
+      StructField("address", StringType, nullable = true),
+      StructField("latitude", DoubleType, nullable = true),
+      StructField("longitude", DoubleType, nullable = true),
+      StructField("SO2",DoubleType,nullable = true),
+      StructField("NO2",DoubleType,nullable = true),
+      StructField("O3",DoubleType,nullable = true),
+      StructField("CO",DoubleType,nullable = true),
+      StructField("PM10",DoubleType,nullable = true),
+      StructField("PM2.5",DoubleType,nullable = true)
+    ))
+
+    val measureDF = spark.read.schema(schema)
+      .format("csv")
+      .load(path(measuredfile))
+
+    measureDF
   }
-
-
 
 
 
