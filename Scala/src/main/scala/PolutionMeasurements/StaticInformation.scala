@@ -4,6 +4,9 @@ import org.apache.spark.sql.types._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
 
+
+case class Item(timezone: String, SO2: Double, NO2: Double, O3: Double,CO: Double,PM10: Double,PM25: Double)
+
 object StaticInformation extends MeasurementesInterface {
 
   // Pure Functions
@@ -16,6 +19,11 @@ object StaticInformation extends MeasurementesInterface {
     val time = timezoneList(1) + ":00"
 
     date + " " + time
+
+  }
+
+  def setLevel(value: Double) = {
+
 
   }
 
@@ -121,15 +129,34 @@ object StaticInformation extends MeasurementesInterface {
   }
 
   def descentrilizer() ={
-    
+
     // Reading Files:
     val stationDF = readStation("/AirPolution/Data_Measurement_station_info.csv")
     val itemDF = readItem("/AirPolution/Data_Measurement_item_info.csv")
     val measureDF = readMeasurement("/AirPolution/Measurement_summary.csv")
-    
+
     // Join Files
     joinedDF(stationDF,itemDF,measureDF)
 
   }
+
+  def riskLevel(eventDF: Dataset[Row],itemDF: Dataset[Row]) = {
+    val eventDS = eventDF.select(
+      col("timezone"),
+      col("SO2"),
+      col("NO2"),
+      col("O3"),
+      col("CO"),
+      col("PM10"),
+      col("PM2.5")
+    )
+      .as[Item]
+      .toDS
+
+    eventDS
+
+
+  }
+
 
 }
