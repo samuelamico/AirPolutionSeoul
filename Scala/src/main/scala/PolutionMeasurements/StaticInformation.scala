@@ -153,7 +153,11 @@ object StaticInformation extends MeasurementesInterface {
       .as[Item]
       .toDS
 
-    eventDS
+    eventDS.map(measure => 
+      func(
+        measure.SO2
+        )
+      )
 
 
   }
