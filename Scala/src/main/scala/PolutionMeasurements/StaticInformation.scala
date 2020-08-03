@@ -4,8 +4,7 @@ import org.apache.spark.sql.types._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
 
-
-case class Item(timezone: String, SO2: Double, NO2: Double, O3: Double,CO: Double,PM10: Double,PM25: Double)
+case class levelRisk(good: Double, normal: Double, bad: Double, veryBad: Double)
 
 object StaticInformation extends MeasurementesInterface {
 
@@ -22,10 +21,6 @@ object StaticInformation extends MeasurementesInterface {
 
   }
 
-  def setLevel(value: Double) = {
-
-
-  }
 
 
   // This Object refers to the StationReading and wrangling
@@ -67,7 +62,7 @@ object StaticInformation extends MeasurementesInterface {
      * @param itemfile Path for Item of Measurements
      * @return the Itens Datframe
      */
-    def readItem(itemfile: String): Dataset[Row] = {
+    def readItem(itemfile: String): Map[Any, levelRisk] = {
 
       // schema
       val schema = StructType(List(
@@ -84,7 +79,16 @@ object StaticInformation extends MeasurementesInterface {
         .format("csv")
         .load(path(itemfile))
 
-      itemDF
+      val item = itemDF.collect().toList.tail
+      
+      val itemMap: Map[Any, levelRisk] = item.map(row =>
+        ( row(1) -> levelRisk(row(3).toString.toDouble,
+          row(4).toString.toDouble,
+          row(5).toString.toDouble,
+          row(6).toString.toDouble
+        ) ) ).toMap
+
+      itemMap
 
     }
 
@@ -141,25 +145,7 @@ object StaticInformation extends MeasurementesInterface {
   }
 
   def riskLevel(eventDF: Dataset[Row],itemDF: Dataset[Row]) = {
-    val eventDS = eventDF.select(
-      col("timezone"),
-      col("SO2"),
-      col("NO2"),
-      col("O3"),
-      col("CO"),
-      col("PM10"),
-      col("PM2.5")
-    )
-      .as[Item]
-      .toDS
-
-    eventDS.map(measure => 
-      func(
-        measure.SO2
-        )
-      )
-
-
+    ???
   }
 
 
