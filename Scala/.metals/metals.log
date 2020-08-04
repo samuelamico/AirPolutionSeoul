@@ -48,3 +48,6 @@ ADVERTÊNCIA: Unmatched cancel notification for request id 10
 2020.08.03 16:05:38 WARN  no build target for: C:\Users\samfs\Documents\AirPolutionSeoul\Scala\src\main\scala\PolutionMeasurements\Main.sc
 2020.08.03 16:05:38 WARN  no build target for: C:\Users\samfs\Documents\AirPolutionSeoul\Scala\src\main\scala\PolutionMeasurements\MeasurementesInterface.scala
 2020.08.03 16:05:38 WARN  no build target for: C:\Users\samfs\Documents\AirPolutionSeoul\Scala\src\main\scala\PolutionMeasurements\StaticInformation.scala
+2020.08.03 16:11:49 WARN  code navigation does not work for the file 'C:\Users\samfs\Documents\AirPolutionSeoul\Scala\src\main\scala\PolutionMeasurements\MeasurementesInterface.scala' because it doesn't belong to a build target.
+2020.08.03 16:11:50 WARN  no build target for: C:\Users\samfs\Documents\AirPolutionSeoul\Scala\src\main\scala\PolutionMeasurements\MeasurementesInterface.scala
+2020.08.03 16:14:09 INFO  shutting down Metals

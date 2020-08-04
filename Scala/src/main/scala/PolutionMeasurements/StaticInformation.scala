@@ -21,8 +21,6 @@ object StaticInformation extends MeasurementesInterface {
 
   }
 
-
-
   // This Object refers to the StationReading and wrangling
   // Spark Session
   val spark = SparkSession.builder()
@@ -33,6 +31,8 @@ object StaticInformation extends MeasurementesInterface {
 
   val path = (file:String) => getClass.getResource(file).getPath
   val udfTime = udf(convertTimezone _)
+
+
   /**
    *
    * @param stationfile The name of the file that is in the resource
@@ -57,6 +57,8 @@ object StaticInformation extends MeasurementesInterface {
 
     stationDF
   }
+
+
     /**
      *
      * @param itemfile Path for Item of Measurements
@@ -75,12 +77,11 @@ object StaticInformation extends MeasurementesInterface {
         StructField("very_bad",DoubleType,nullable = false)
       ))
 
-      val itemDF = spark.read.schema(schema)
+      val item = spark.read.schema(schema)
         .format("csv")
         .load(path(itemfile))
+        .collect().toList.tail
 
-      val item = itemDF.collect().toList.tail
-      
       val itemMap: Map[Any, levelRisk] = item.map(row =>
         ( row(1) -> levelRisk(row(3).toString.toDouble,
           row(4).toString.toDouble,
@@ -128,8 +129,7 @@ object StaticInformation extends MeasurementesInterface {
 
     val interStation = stationDF.select(col("station_code"),col("station_name"))
     measureDF.join(interStation,Seq("station_code"),"left")
-
-
+    
   }
 
   def descentrilizer() ={
@@ -143,10 +143,6 @@ object StaticInformation extends MeasurementesInterface {
     joinedDF(stationDF,itemDF,measureDF)
 
   }
-
-  def riskLevel(eventDF: Dataset[Row],itemDF: Dataset[Row]) = {
-    ???
-  }
-
-
+  
+  
 }
